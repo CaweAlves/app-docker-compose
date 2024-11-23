@@ -1,0 +1,31 @@
+version: '3.9'  # Define a versão da sintaxe do Docker Compose a ser usada.
+
+volumes:  # Declaração de volumes que serão utilizados pelos contêineres.
+  mysql_data: {}  # Criação de um volume persistente chamado mysql_data.
+
+services:  # Início da definição dos serviços (contêineres) que serão executados.
+  mysql:  # Nome do serviço para o banco de dados MySQL.
+    image: mysql:8.0  # Indica a imagem a ser utilizada (MySQL versão 8.0).
+    volumes:  # Montagem de volumes para persistência de dados.
+      - mysql_data:/var/lib/mysql  # Mapeia o volume mysql_data para o diretório do MySQL.
+    restart: always  # Configuração para reiniciar o contêiner sempre que necessário.
+    environment:  # Definição de variáveis de ambiente para configuração do MySQL.
+      MYSQL_ROOT_PASSWORD: root  # Senha do usuário root do MySQL.
+      MYSQL_DATABASE: wordpress  # Nome do banco de dados que será criado.
+      MYSQL_USER: wordpress  # Nome do usuário do banco de dados.
+      MYSQL_PASSWORD: wordpress  # Senha do usuário do banco de dados.
+
+  wordpress:  # Nome do serviço para a aplicação WordPress.
+    depends_on:  # Define dependências entre os serviços.
+      - mysql  # Garante que o serviço MySQL inicie antes do WordPress.
+    image: wordpress:latest  # Indica a imagem a ser utilizada (última versão do WordPress).
+    ports:  # Mapeamento de portas para comunicação.
+      - "80:80";  # Mapeia a porta 80 do host para a porta 80 do contêiner do WordPress.
+    restart: always  # Configuração para reiniciar o contêiner sempre que necessário.
+    environment:  # Definição de variáveis de ambiente para configuração do WordPress.
+      WORDPRESS_DB_HOST: mysql:3306  # Host do banco de dados (serviço MySQL).
+      WORDPRESS_DB_USER: wordpress  # Nome do usuário do banco de dados.
+      WORDPRESS_DB_PASSWORD: wordpress  # Senha do usuário do banco de dados.
+      WORDPRESS_DB_NAME: wordpress  # Nome do banco de dados.
+    volumes:  # Montagem de volumes para persistência de dados.
+      - ./wordpress:/var/www/html  # Mapeia o diretório local ./wordpress para o diretório do WordPress.
